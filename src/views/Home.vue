@@ -1,19 +1,30 @@
 <template>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-12 text-right">
-				<button @click="logout" class="btn-dark">Log out</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-12 col-md-6">
-				<GameBoard></GameBoard>
-			</div>
-			<div class="col-6 col-md-3">
-				<ScoreBoard></ScoreBoard>
-			</div>
+	<div class="container-fluid px-0">
+		<el-menu
+			class="el-menu-demo d-flex justify-content-end"
+			mode="horizontal"
+			background-color="#2F2F2F"
+		>
+			<el-menu-item>
+				<el-button type="danger" @click="logout">Log out</el-button>
+			</el-menu-item>
+		</el-menu>
+
+		<div class="col-12 d-flex pt-4">
 			<div class="col-6 col-md-3" v-if="user !== null">
-				<Room></Room>
+				<el-card><Room></Room></el-card>
+			</div>
+
+			<div class="col-12 col-md-6" v-if="game.id">
+				<el-card>
+					<GameBoard></GameBoard>
+				</el-card>
+			</div>
+
+			<div class="col-6 col-md-3" v-if="scores.length > 0">
+				<el-card>
+					<ScoreBoard></ScoreBoard>
+				</el-card>
 			</div>
 		</div>
 	</div>
@@ -50,6 +61,8 @@ export default {
 		...mapGetters({
 			isAuthenticated: "isAuthenticated",
 			user: "getUser",
+			game: "getGame",
+			scores: "getScores",
 		}),
 	},
 	created() {
