@@ -12,3 +12,4 @@ export const JOIN_ROOM = "joinRoom";
 export const FETCH_ROOMS = "fetchRooms";
 export const FETCH_PASSWORD_CATEGORIES = "fetchPasswordCategories";
 export const SET_SCOREBOARD = "setScoreboard";
+export const LEAVE_GAME = "leaveGame";

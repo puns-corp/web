@@ -13,7 +13,7 @@
 						<form @submit.prevent="onSubmit(email, password)">
 							<fieldset class="form-group">
 								<input
-									class="form-control form-control-lg"
+									class="form-control "
 									type="text"
 									v-model="email"
 									placeholder="Email"
@@ -21,7 +21,7 @@
 							</fieldset>
 							<fieldset class="form-group">
 								<input
-									class="form-control form-control-lg"
+									class="form-control "
 									type="password"
 									v-model="password"
 									placeholder="Password"

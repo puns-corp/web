@@ -11,7 +11,7 @@ export const getAccessToken = () => {
 
 export const saveAccessToken = (token) => {
 	let date = new Date();
-	date.setMinutes(date.getMinutes() + 15);
+	date.setMinutes(date.getMinutes() + 10080);
 	VueCookies.set(ACCESS_TOKEN_KEY, token, date, PATH, DOMAIN);
 };
 

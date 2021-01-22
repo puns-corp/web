@@ -7,7 +7,6 @@
 				<p v-for="player in players" :key="player.id">
 					{{ player.nick }}
 				</p>
-				<h2>{{ message }}</h2>
 			</div>
 		</div>
 
@@ -77,9 +76,6 @@
 				<button @click="selectNextPlayer(player.id)">
 					{{ player.nick }}
 				</button>
-				<button
-					@click="$gameHub.removeFromGameGroup(gameId, user.id)"
-				></button>
 			</div>
 		</div>
 	</div>
@@ -99,7 +95,6 @@ export default {
 	name: "GameBoard",
 	data() {
 		return {
-			message: "",
 			userInGame: false,
 			password: "",
 		};
@@ -161,7 +156,6 @@ export default {
 				const player = this.players.find(
 					(x) => x.id === this.game.showingPlayerId,
 				);
-				console.log("player: " + player);
 				if (player !== null) {
 					return player.nick;
 				}
@@ -190,31 +184,41 @@ export default {
 		},
 		playerJoined(playerId) {
 			this.$store.dispatch(FETCH_PLAYERS).then(() => {
-				console.log(this.players);
 				const player = this.players.find((x) => x.id === playerId);
-				this.message = player.nick + " joined the game";
+				this.$notify.success({
+					title: `${player.nick} joined the game`,
+					duration: 3000,
+				});
 			});
 		},
 		playerQuit(playerId) {
 			const player = this.players.find((x) => x.id === playerId);
-			this.message = player.nick + " left the game";
+			this.$notify.warning({
+				title: `${player.nick} left the game`,
+				duration: 3000,
+			});
 			this.$store.dispatch(FETCH_PLAYERS);
 		},
 		gameStarted() {
-			this.message = "The game has started";
+			this.$notify.success({
+				title: `The game has started`,
+				duration: 3000,
+			});
 		},
 		scoresReceived(scores) {
 			this.$store.dispatch(SET_SCOREBOARD, scores.scores);
 		},
 		gameEnded() {
-			this.message = "The game is over";
+			this.$notify.warning({
+				title: `The game is over`,
+				duration: 3000,
+			});
 		},
 		// switchPlayer() {
 		//   //tutaj chyba musi ogarnąć, że ty odpowiadasz
 		// },
 		quitGame() {
 			this.$gameHub.quitGame(this.user.gameId).then(() => {
-				this.message = "";
 				this.userInGame = false;
 			});
 		},
@@ -235,7 +239,12 @@ export default {
 			if (nextPlayerId === this.user.id) {
 				this.$gameHub
 					.newShowingPlayer(this.user.gameId, nextPlayerId)
-					.then(() => (this.message = "Teraz Ty pokazujesz"));
+					.then(() =>
+						this.$notify.info({
+							title: `Now you are showing`,
+							duration: 3000,
+						}),
+					);
 				//this.$gameHub.switchPlayer(this.gameId)
 				//this.userIsShowingPlayer = true;
 			}
@@ -244,7 +253,10 @@ export default {
 			this.$store.dispatch(FETCH_GAME).then(() => {
 				console.log("next player ID " + playerId);
 				const player = this.players.find((x) => x.id === playerId);
-				this.message = player.nick + " now showing";
+				this.$notify.info({
+					title: `${player.nick} now showing`,
+					duration: 3000,
+				});
 			});
 		},
 		fetchPlayers() {
@@ -272,7 +284,6 @@ export default {
 		});
 	},
 	destroyed() {
-		console.log("asdasddad");
 		this.$gameHub.removeFromGameGroup(this.gameId, this.user.id);
 		this.$parent.$off("user-joined-to-game");
 		this.$gameHub.$off("player-joined");

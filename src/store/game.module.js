@@ -4,8 +4,10 @@ import {
 	FETCH_GAME,
 	FETCH_PASSWORD_CATEGORIES,
 	FETCH_PLAYERS,
+	LEAVE_GAME,
 } from "@/store/actions.type";
 import {
+	CLEAN_GAME_DATA,
 	PURGE_GAME,
 	PURGE_PASSWORDS_CATEGORIES,
 	PURGE_PLAYERS,
@@ -94,6 +96,9 @@ const actions = {
 	[SET_SCOREBOARD](context, scores) {
 		context.commit(SET_SCOREBOARD, scores);
 	},
+	[LEAVE_GAME](context) {
+		context.commit(CLEAN_GAME_DATA);
+	},
 };
 
 const mutations = {
@@ -117,6 +122,12 @@ const mutations = {
 	},
 	[SET_SCOREBOARD](state, scores) {
 		state.scores = scores;
+	},
+	[CLEAN_GAME_DATA](state) {
+		console.log("asdasd");
+		state.game = {};
+		state.scores = [];
+		state.players = [];
 	},
 };
 

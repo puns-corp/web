@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid px-0">
+	<div class="container-fluid px-0 game-board">
 		<el-menu
 			class="el-menu-demo d-flex justify-content-end"
 			mode="horizontal"
@@ -10,18 +10,23 @@
 			</el-menu-item>
 		</el-menu>
 
-		<div class="col-12 d-flex pt-4">
-			<div class="col-6 col-md-3" v-if="user !== null">
-				<el-card><Room></Room></el-card>
+		<div class="col-12 d-flex pt-4 d-flex">
+			<div class="col-12 col-md-6 col-lg-3" v-if="user !== null">
+				<el-card class="mb-3 overflow-auto">
+					<Room></Room>
+				</el-card>
+				<el-card v-if="user.roomId">
+					<Game></Game>
+				</el-card>
 			</div>
 
-			<div class="col-12 col-md-6" v-if="game.id">
-				<el-card>
+			<div class="col-12 col-md-6 d-flex" v-if="game.id">
+				<el-card class="w-100">
 					<GameBoard></GameBoard>
 				</el-card>
 			</div>
 
-			<div class="col-6 col-md-3" v-if="scores.length > 0">
+			<div class="col-6 col-md-3 d-flex" v-if="scores.length > 0">
 				<el-card>
 					<ScoreBoard></ScoreBoard>
 				</el-card>
@@ -31,16 +36,12 @@
 </template>
 
 <script>
-// @ is an alias to /src
 import GameBoard from "@/components/GameBoard";
 import Room from "@/components/Room";
+import Game from "@/components/Game";
+
 import ScoreBoard from "@/components/ScoreBoard";
-import {
-	LOGOUT,
-	FETCH_USER,
-	FETCH_ROOMS,
-	FETCH_GAMES,
-} from "@/store/actions.type";
+import { LOGOUT, FETCH_USER } from "@/store/actions.type";
 import { mapGetters } from "vuex";
 
 export default {
@@ -49,6 +50,7 @@ export default {
 		GameBoard,
 		Room,
 		ScoreBoard,
+		Game,
 	},
 	methods: {
 		logout() {
@@ -71,8 +73,6 @@ export default {
 		}
 		this.$gameHub.stopSignalR();
 		this.$store.dispatch(FETCH_USER);
-		this.$store.dispatch(FETCH_ROOMS);
-		this.$store.dispatch(FETCH_GAMES);
 		this.$gameHub.startSignalR();
 	},
 	beforeDestroy() {
@@ -80,3 +80,4 @@ export default {
 	},
 };
 </script>
+<style scoped></style>

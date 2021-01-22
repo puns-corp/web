@@ -61,7 +61,6 @@ export default {
 			});
 
 			connection.on("FetchPasswords", (data) => {
-				console.log(data);
 				gameHub.$emit("fetch-passwords", data);
 			});
 
