@@ -11,16 +11,10 @@
 					</el-table-column>
 					<el-table-column align="right">
 						<template slot-scope="scope">
-							<el-button
+							<i
+								class="el-icon-check"
 								v-if="scope.row.id === user.roomId"
-								round
-								size="mini"
-								type="danger"
-								icon="el-icon-close"
-								@click="joinRoom(scope.row.id)"
-							>
-								<strong> LEAVE</strong>
-							</el-button>
+							></i>
 							<el-button
 								v-else
 								size="mini"
@@ -77,7 +71,9 @@ import {
 	CREATE_ROOM,
 	FETCH_USER,
 	FETCH_ROOMS,
+	FETCH_GAMES,
 	JOIN_ROOM,
+	LEAVE_GAME,
 } from "@/store/actions.type";
 
 export default {
@@ -125,9 +121,17 @@ export default {
 		fetchRooms() {
 			this.$store.dispatch(FETCH_ROOMS);
 		},
+		fetchGames() {
+			this.$gameHub.quitGame(this.user.gameId).then(() => {
+				this.fetchUser();
+			});
+			this.$store.dispatch(LEAVE_GAME);
+			this.$store.dispatch(FETCH_GAMES);
+		},
 		fetchData() {
 			this.fetchUser();
 			this.fetchRooms();
+			this.fetchGames();
 		},
 	},
 };

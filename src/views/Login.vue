@@ -80,7 +80,6 @@ export default {
 	watch: {
 		isAuthenticated(newVal) {
 			if (newVal) {
-				console.log(newVal);
 				this.$router.push({ name: "Home" });
 			}
 		},

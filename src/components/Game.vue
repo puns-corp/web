@@ -106,29 +106,27 @@ export default {
 	},
 	created() {
 		this.fetchGames();
-		this.fetchGame();
+		if (this.user.gameId) this.fetchGame();
 	},
 	methods: {
 		movePage(item) {
 			this.currentPage = item;
 		},
 		leaveGame() {
-			this.$gameHub.quitGame(this.user.gameId).then(() => {
-				this.$parent.$off("user-joined-to-game");
-				this.$gameHub.$off("player-joined");
-				this.$gameHub.$off("game-started");
-				this.$gameHub.$off("player-quit");
-				this.$gameHub.$off("game-ended");
-				this.$gameHub.$off("player-guessed");
-				this.$gameHub.$off("new-showing-player");
-				this.fetchUser();
-				this.$store.dispatch(LEAVE_GAME);
-			});
+			this.$gameHub
+				.removeFromGameGroup(this.user.gameId, this.user.id)
+				.then(() => {
+					this.fetchUser();
+					this.$store.dispatch(LEAVE_GAME);
+				});
 		},
 		joinGame(gameId) {
+			if (this.user.gameId) {
+				this.leaveGame();
+			}
 			this.$gameHub
 				.joinGame(gameId)
-				.then(() => this.playerJoinedToGame(gameId))
+				.then(() => this.fetchGame())
 				.then(() => this.fetchData());
 		},
 		createGame() {
@@ -136,8 +134,7 @@ export default {
 				.dispatch(CREATE_GAME, this.gameName)
 				.then(() => this.fetchUser())
 				.then(() => this.fetchGames())
-				.then(this.$gameHub.joinGame(this.user.gameId))
-				.then(() => this.playerJoinedToGame(this.user.gameId));
+				.then(this.$gameHub.joinGame(this.user.gameId));
 		},
 		fetchUser() {
 			this.$store.dispatch(FETCH_USER);
@@ -147,13 +144,6 @@ export default {
 		},
 		fetchGame() {
 			this.$store.dispatch(FETCH_GAME);
-		},
-		playerJoinedToGame(gameId) {
-			this.$gameHub
-				.joinGame(gameId)
-				.then(() => this.$store.dispatch(FETCH_GAME));
-
-			this.$parent.$emit("user-joined-to-game", gameId);
 		},
 		fetchData() {
 			this.fetchUser();

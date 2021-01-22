@@ -26,7 +26,7 @@ const state = {
 
 const getters = {
 	getPlayers(state) {
-		return state.players;
+		return state.game.players;
 	},
 	getGameMasterId(state) {
 		return state.game.gameMasterId;
@@ -71,12 +71,10 @@ const actions = {
 		return new Promise((resolve) => {
 			ApiService.get("Games/FetchPlayers")
 				.then(({ data }) => {
-					console.log(data);
 					context.commit(SET_PLAYERS, data.data.players);
 					resolve(data);
 				})
-				.catch(({ data }) => {
-					console.log(data);
+				.catch(() => {
 					context.commit(PURGE_PLAYERS);
 				});
 		});
@@ -115,7 +113,7 @@ const mutations = {
 		state.passwordsCategories = null;
 	},
 	[SET_PLAYERS](state, data) {
-		state.players = data;
+		state.game.players = data;
 	},
 	[PURGE_PLAYERS](state) {
 		state.players = null;
@@ -124,10 +122,8 @@ const mutations = {
 		state.scores = scores;
 	},
 	[CLEAN_GAME_DATA](state) {
-		console.log("asdasd");
 		state.game = {};
 		state.scores = [];
-		state.players = [];
 	},
 };
 
