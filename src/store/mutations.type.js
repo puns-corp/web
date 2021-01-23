@@ -13,3 +13,4 @@ export const SET_PASSWORDS_CATEGORIES = "setPasswordsCategories";
 export const PURGE_PASSWORDS_CATEGORIES = "purgePasswordsCategories";
 export const SET_AUTH = "setAuth";
 export const SET_SCOREBOARD = "setScoreboard";
+export const CLEAN_GAME_DATA = "cleanGameData";

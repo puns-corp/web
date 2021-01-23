@@ -4,8 +4,10 @@ import {
 	FETCH_GAME,
 	FETCH_PASSWORD_CATEGORIES,
 	FETCH_PLAYERS,
+	LEAVE_GAME,
 } from "@/store/actions.type";
 import {
+	CLEAN_GAME_DATA,
 	PURGE_GAME,
 	PURGE_PASSWORDS_CATEGORIES,
 	PURGE_PLAYERS,
@@ -24,7 +26,7 @@ const state = {
 
 const getters = {
 	getPlayers(state) {
-		return state.players;
+		return state.game.players;
 	},
 	getGameMasterId(state) {
 		return state.game.gameMasterId;
@@ -69,12 +71,10 @@ const actions = {
 		return new Promise((resolve) => {
 			ApiService.get("Games/FetchPlayers")
 				.then(({ data }) => {
-					console.log(data);
 					context.commit(SET_PLAYERS, data.data.players);
 					resolve(data);
 				})
-				.catch(({ data }) => {
-					console.log(data);
+				.catch(() => {
 					context.commit(PURGE_PLAYERS);
 				});
 		});
@@ -94,6 +94,9 @@ const actions = {
 	[SET_SCOREBOARD](context, scores) {
 		context.commit(SET_SCOREBOARD, scores);
 	},
+	[LEAVE_GAME](context) {
+		context.commit(CLEAN_GAME_DATA);
+	},
 };
 
 const mutations = {
@@ -110,13 +113,17 @@ const mutations = {
 		state.passwordsCategories = null;
 	},
 	[SET_PLAYERS](state, data) {
-		state.players = data;
+		state.game.players = data;
 	},
 	[PURGE_PLAYERS](state) {
 		state.players = null;
 	},
 	[SET_SCOREBOARD](state, scores) {
 		state.scores = scores;
+	},
+	[CLEAN_GAME_DATA](state) {
+		state.game = {};
+		state.scores = [];
 	},
 };
 

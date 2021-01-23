@@ -1,24 +1,22 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 import ApiService from "@/common/api.service";
 import GameHub from "@/hubs/gameHub";
+import "@/plugins/veeValidate";
+import Vue from "vue";
 import VueCookies from "vue-cookies";
+import App from "./App.vue";
+import elementUi from "./plugins/elementUi";
+import router from "./router";
+import store from "./store";
 
-Vue.config.productionTip = false
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
-Vue.use(GameHub)
+Vue.config.productionTip = false;
+Vue.use(elementUi);
+Vue.use(GameHub);
 Vue.use(VueCookies);
 
-ApiService.init()
+ApiService.init();
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+	router,
+	store,
+	render: (h) => h(App),
+}).$mount("#app");

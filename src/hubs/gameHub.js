@@ -1,4 +1,3 @@
-// import { signalR } from '@microsoft/signalr'
 import JwtService from "@/common/jwt.service";
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 
@@ -36,8 +35,8 @@ export default {
 				gameHub.$emit("player-quit", playerId);
 			});
 
-			connection.on("GameEnded", () => {
-				gameHub.$emit("game-ended");
+			connection.on("GameEnded", (nickname) => {
+				gameHub.$emit("game-ended", nickname);
 			});
 
 			connection.on("PlayerGuessed", (nextPlayerId) => {
@@ -61,7 +60,6 @@ export default {
 			});
 
 			connection.on("FetchPasswords", (data) => {
-				console.log(data);
 				gameHub.$emit("fetch-passwords", data);
 			});
 
@@ -149,7 +147,6 @@ export default {
 
 		gameHub.newShowingPlayer = (gameId, playerId) => {
 			if (!startedPromise) return;
-
 			return startedPromise
 				.then(() =>
 					connection.invoke("NewShowingPlayer", gameId, playerId),

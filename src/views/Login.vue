@@ -3,47 +3,45 @@
 		<div class="container page ">
 			<div class="row">
 				<div
-					class="col-md-6 offset-md-3 vh-100 d-flex justify-content-center align-items-center"
+					class="col-12 vh-100 d-flex justify-content-center align-items-center"
 				>
-					<b-card>
+					<el-card class="px-3">
 						<template #header>
 							<h4 class="mb-0">Sign in</h4>
 						</template>
-						<b-card-body>
-							<div v-if="errors" class="error-messages">
-								<br />
-								{{ errors }}
-							</div>
-							<form @submit.prevent="onSubmit(email, password)">
-								<fieldset class="form-group">
-									<input
-										class="form-control form-control-lg"
-										type="text"
-										v-model="email"
-										placeholder="Email"
-									/>
-								</fieldset>
-								<fieldset class="form-group">
-									<input
-										class="form-control form-control-lg"
-										type="password"
-										v-model="password"
-										placeholder="Password"
-									/>
-								</fieldset>
-								<button
-									class="btn btn-lg btn-primary pull-xs-right"
-								>
-									Sign in
-								</button>
-								<p class="text-xs-center">
-									<router-link :to="{ name: 'register' }">
-										Need an account?
-									</router-link>
-								</p>
-							</form>
-						</b-card-body>
-					</b-card>
+
+						<form @submit.prevent="onSubmit(email, password)">
+							<fieldset class="form-group">
+								<input
+									class="form-control "
+									type="text"
+									v-model="email"
+									placeholder="Email"
+								/>
+							</fieldset>
+							<fieldset class="form-group">
+								<input
+									class="form-control "
+									type="password"
+									v-model="password"
+									placeholder="Password"
+								/>
+							</fieldset>
+							<el-button
+								round
+								type="primary"
+								class="my-3"
+								native-type="submit"
+							>
+								Sign in
+							</el-button>
+							<p class="text-xs-center">
+								<router-link :to="{ name: 'register' }">
+									Need an account?
+								</router-link>
+							</p>
+						</form>
+					</el-card>
 				</div>
 			</div>
 		</div>
@@ -82,8 +80,15 @@ export default {
 	watch: {
 		isAuthenticated(newVal) {
 			if (newVal) {
-				console.log(newVal);
 				this.$router.push({ name: "Home" });
+			}
+		},
+		errors(newVal) {
+			if (newVal !== null) {
+				this.$notify.error({
+					title: newVal,
+					duration: 3000,
+				});
 			}
 		},
 	},

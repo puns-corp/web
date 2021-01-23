@@ -1,39 +1,41 @@
 <template>
-	<div class="container mb-5">
-		<h1>Game Board</h1>
-
+	<div class="container">
 		<div class="row">
-			<div class="col-12">
-				<p v-for="player in players" :key="player.id">
-					{{ player.nick }}
-				</p>
-				<h2>{{ message }}</h2>
-			</div>
+			<h3>Game Board</h3>
 		</div>
 
-		<div v-if="!isMinimumTwoPlayers && isUserInGame" class="row">
-			<div class="col-12">
-				<h2>Waiting for other player</h2>
-			</div>
-		</div>
-
-		<div v-if="showingPlayer !== ''" class="row">
-			<div class="col-12">
-				<h3>Showing: {{ showingPlayer }}</h3>
-			</div>
+		<div class="col-12">
+			<h5>Players:</h5>
+			<el-alert
+				v-if="!isMinimumTwoPlayers && isUserInGame"
+				title="Waiting for other player"
+				type="info"
+				class="mb-2"
+				:closable="false"
+			>
+			</el-alert>
+			<p v-for="player in players" class="mb-0" :key="player.id">
+				{{ player.nick }}
+			</p>
 		</div>
 
 		<div
+			class="col-12"
 			v-if="
 				!isGameStarted &&
 					!isGameEnded &&
 					isUserMaster &&
 					isMinimumTwoPlayers
 			"
-			class="row"
 		>
+			<el-button type="primary" @click="this.startGame"
+				>Start Game</el-button
+			>
+		</div>
+
+		<div v-if="showingPlayer !== ''" class="row">
 			<div class="col-12">
-				<button @click="this.startGame">Start Game</button>
+				<h3>Showing: {{ showingPlayer }}</h3>
 			</div>
 		</div>
 
@@ -47,39 +49,43 @@
 				:key="passwordCategory.id"
 				class="col-12"
 			>
-				<b-button class="my-2" @click="selectPasswordCategory(index)">{{
-					passwordCategory.name
-				}}</b-button>
+				<el-button
+					class="my-2"
+					@click="selectPasswordCategory(index)"
+					>{{ passwordCategory.name }}</el-button
+				>
 			</div>
 		</div>
 		<div
-			v-if="isGameStarted && !isGameEnded && isUserShowingPlayer"
+			v-if="
+				isGameStarted &&
+					!isGameEnded &&
+					isUserShowingPlayer &&
+					password.length > 0
+			"
 			class="row"
 		>
-			<h4>Your password is:</h4>
-			<div>
-				{{ password }}
-			</div>
+			<h4>Your password is: {{ password }}</h4>
 		</div>
 
 		<div
 			v-if="playersAreAlreadyDownloaded && isUserShowingPlayer"
 			class="row"
 		>
-			<div class="col-12">
-				Select the player who guessed
-			</div>
+			<h4>Select the player who guessed:</h4>
 			<div
 				v-for="player in playersWithoutUser"
 				:key="player.id"
-				class="col-12 my-2"
+				class="col-12 my-2 "
 			>
-				<button @click="selectNextPlayer(player.id)">
+				<el-button
+					class="w-100"
+					type="primary"
+					plain
+					@click="selectNextPlayer(player.id)"
+				>
 					{{ player.nick }}
-				</button>
-				<button
-					@click="$gameHub.removeFromGameGroup(gameId, user.id)"
-				></button>
+				</el-button>
 			</div>
 		</div>
 	</div>
@@ -93,13 +99,14 @@ import {
 	FETCH_PLAYERS,
 	FETCH_USER,
 	SET_SCOREBOARD,
+	LEAVE_GAME,
+	FETCH_GAMES,
 } from "@/store/actions.type";
 
 export default {
 	name: "GameBoard",
 	data() {
 		return {
-			message: "",
 			userInGame: false,
 			password: "",
 		};
@@ -118,7 +125,7 @@ export default {
 			return this.players.filter((x) => x.id !== this.user.id);
 		},
 		playersAreAlreadyDownloaded() {
-			return this.players !== undefined;
+			return this.players.length >= 2;
 		},
 		isUserMaster() {
 			if (this.user !== null && this.game !== null) {
@@ -139,11 +146,7 @@ export default {
 			return false;
 		},
 		isMinimumTwoPlayers() {
-			return (
-				this.players !== undefined &&
-				this.players !== null &&
-				this.players.length >= 2
-			);
+			return this.players.length >= 2;
 		},
 		isUserInGame() {
 			if (this.user !== null) {
@@ -161,7 +164,6 @@ export default {
 				const player = this.players.find(
 					(x) => x.id === this.game.showingPlayerId,
 				);
-				console.log("player: " + player);
 				if (player !== null) {
 					return player.nick;
 				}
@@ -190,32 +192,45 @@ export default {
 		},
 		playerJoined(playerId) {
 			this.$store.dispatch(FETCH_PLAYERS).then(() => {
-				console.log(this.players);
 				const player = this.players.find((x) => x.id === playerId);
-				this.message = player.nick + " joined the game";
+				this.$notify.success({
+					title: `${player.nick} joined the game`,
+					duration: 3000,
+				});
 			});
 		},
 		playerQuit(playerId) {
 			const player = this.players.find((x) => x.id === playerId);
-			this.message = player.nick + " left the game";
+			this.$notify.warning({
+				title: `${player.nick} left the game`,
+				duration: 3000,
+			});
 			this.$store.dispatch(FETCH_PLAYERS);
 		},
 		gameStarted() {
-			this.message = "The game has started";
+			this.$notify.success({
+				title: `The game has started`,
+				duration: 3000,
+			});
 		},
 		scoresReceived(scores) {
-			this.$store.dispatch(SET_SCOREBOARD, scores.scores);
+			this.$store
+				.dispatch(SET_SCOREBOARD, scores.scores)
+				.then(() => this.$store.dispatch(FETCH_GAME));
 		},
-		gameEnded() {
-			this.message = "The game is over";
-		},
-		// switchPlayer() {
-		//   //tutaj chyba musi ogarnąć, że ty odpowiadasz
-		// },
-		quitGame() {
+		gameEnded(nickname) {
 			this.$gameHub.quitGame(this.user.gameId).then(() => {
-				this.message = "";
-				this.userInGame = false;
+				this.$store.dispatch(FETCH_USER);
+				this.$store.dispatch(LEAVE_GAME);
+			});
+			this.$store.dispatch(FETCH_GAME);
+			this.$store.dispatch(FETCH_GAMES);
+
+			this.$store.dispatch(FETCH_USER);
+
+			this.$notify.success({
+				title: `${nickname} won! The game is over`,
+				duration: 3000,
 			});
 		},
 		startGame() {
@@ -228,23 +243,28 @@ export default {
 			});
 		},
 		selectNextPlayer(nextPlayerId) {
-			console.log(nextPlayerId);
 			this.$gameHub.playerGuessed(this.gameId, nextPlayerId);
 		},
 		playerGuessed(nextPlayerId) {
 			if (nextPlayerId === this.user.id) {
 				this.$gameHub
 					.newShowingPlayer(this.user.gameId, nextPlayerId)
-					.then(() => (this.message = "Teraz Ty pokazujesz"));
-				//this.$gameHub.switchPlayer(this.gameId)
-				//this.userIsShowingPlayer = true;
+					.then(() =>
+						this.$notify.info({
+							title: `Now you are showing`,
+							duration: 3000,
+						}),
+					);
+				this.userIsShowingPlayer = true;
 			}
 		},
 		newShowingPlayer(playerId) {
 			this.$store.dispatch(FETCH_GAME).then(() => {
-				console.log("next player ID " + playerId);
 				const player = this.players.find((x) => x.id === playerId);
-				this.message = player.nick + " now showing";
+				this.$notify.info({
+					title: `${player.nick} now showing`,
+					duration: 3000,
+				});
 			});
 		},
 		fetchPlayers() {
@@ -272,8 +292,8 @@ export default {
 		});
 	},
 	destroyed() {
-		console.log("asdasddad");
-		this.$gameHub.removeFromGameGroup(this.gameId, this.user.id);
+		this.$store.dispatch(LEAVE_GAME);
+
 		this.$parent.$off("user-joined-to-game");
 		this.$gameHub.$off("player-joined");
 		this.$gameHub.$off("game-started");

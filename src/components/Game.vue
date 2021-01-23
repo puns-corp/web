@@ -1,27 +1,33 @@
 <template>
 	<div class="container">
 		<div class="row">
-			<h3>Rooms:</h3>
+			<h3>Games:</h3>
 			<div class="col-12 px-0">
-				<el-table :data="roomTable" empty-text="no rooms available">
+				<el-table :data="games" empty-text="no games available">
 					<el-table-column>
 						<template slot-scope="scope">
-							{{ scope.row.roomName }}
+							{{ scope.row.name }}
 						</template>
 					</el-table-column>
 					<el-table-column align="right">
 						<template slot-scope="scope">
-							<i
-								class="el-icon-check"
-								v-if="scope.row.id === user.roomId"
-							></i>
+							<el-button
+								v-if="scope.row.id === user.gameId"
+								round
+								size="mini"
+								type="danger"
+								icon="el-icon-close"
+								@click="leaveGame(scope.row.id)"
+							>
+								<strong> LEAVE</strong>
+							</el-button>
 							<el-button
 								v-else
 								size="mini"
 								round
 								icon="el-icon-circle-plus-outline"
 								type="success"
-								@click="joinRoom(scope.row.id)"
+								@click="joinGame(scope.row.id)"
 							>
 								<strong>
 									JOIN
@@ -35,19 +41,19 @@
 					layout="prev, pager, next"
 					@current-change="movePage"
 					:page-size="5"
-					:total="rooms.length"
+					:total="games.length"
 				>
 				</el-pagination>
 			</div>
-			<h3 class="mt-3">Create room:</h3>
+			<h3 class="mt-3">Create game:</h3>
 			<div class="col-12">
-				<form @submit.prevent="createRoom(roomName)">
+				<form @submit.prevent="createGame(gameName)">
 					<fieldset class="form-group">
 						<input
 							class="form-control mt-2"
 							type="text"
-							v-model="roomName"
-							placeholder="Room name"
+							v-model="gameName"
+							placeholder="Game name"
 						/>
 					</fieldset>
 					<el-button
@@ -68,11 +74,10 @@
 <script>
 import { mapGetters } from "vuex";
 import {
-	CREATE_ROOM,
-	FETCH_USER,
-	FETCH_ROOMS,
 	FETCH_GAMES,
-	JOIN_ROOM,
+	FETCH_USER,
+	CREATE_GAME,
+	FETCH_GAME,
 	LEAVE_GAME,
 } from "@/store/actions.type";
 
@@ -88,6 +93,7 @@ export default {
 	components: {},
 	computed: {
 		...mapGetters({
+			games: "getGames",
 			user: "getUser",
 			rooms: "getRooms",
 		}),
@@ -99,35 +105,50 @@ export default {
 		},
 	},
 	created() {
-		this.fetchRooms();
+		this.fetchGames();
+		if (this.user.gameId) this.fetchGame();
 	},
 	methods: {
 		movePage(item) {
 			this.currentPage = item;
 		},
-		joinRoom(roomId) {
-			this.$store
-				.dispatch(JOIN_ROOM, roomId)
+		leaveGame() {
+			this.$gameHub
+				.removeFromGameGroup(this.user.gameId, this.user.id)
+				.then(() => {
+					this.fetchUser();
+					this.$store.dispatch(LEAVE_GAME);
+				});
+		},
+		joinGame(gameId) {
+			if (this.user.gameId) {
+				this.leaveGame();
+			}
+			this.$gameHub
+				.joinGame(gameId)
+				.then(() => this.fetchGame())
 				.then(() => this.fetchData());
 		},
-		createRoom(roomName) {
+		createGame() {
 			this.$store
-				.dispatch(CREATE_ROOM, roomName)
-				.then(() => this.fetchData());
+				.dispatch(CREATE_GAME, this.gameName)
+				.then(() => this.fetchUser())
+				.then(() => this.fetchGames())
+				.then(this.$gameHub.joinGame(this.user.gameId))
+				.then(() => this.fetchUser())
+				.then(() => this.fetchGame());
 		},
 		fetchUser() {
 			this.$store.dispatch(FETCH_USER);
 		},
-		fetchRooms() {
-			this.$store.dispatch(FETCH_ROOMS);
-		},
 		fetchGames() {
-			this.$store.dispatch(LEAVE_GAME);
 			this.$store.dispatch(FETCH_GAMES);
+		},
+		fetchGame() {
+			this.$store.dispatch(FETCH_GAME);
 		},
 		fetchData() {
 			this.fetchUser();
-			this.fetchRooms();
 			this.fetchGames();
 		},
 	},
