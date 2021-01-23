@@ -16,7 +16,7 @@ export const saveAccessToken = (token) => {
 };
 
 export const destroyAccessToken = () => {
-	VueCookies.remove(ACCESS_TOKEN_KEY);
+	VueCookies.remove(ACCESS_TOKEN_KEY, PATH, DOMAIN);
 };
 
 export const getRefreshToken = () => {
@@ -26,12 +26,12 @@ export const getRefreshToken = () => {
 export const saveRefreshToken = (token) => {
 	let date = new Date();
 	date.setFullYear(date.getFullYear() + 1);
-	VueCookies.set(REFRESH_TOKEN_KEY, token, date);
-	VueCookies.set(REFRESH_TOKEN_KEY, token);
+	VueCookies.set(REFRESH_TOKEN_KEY, token, date, PATH, DOMAIN);
+	VueCookies.set(REFRESH_TOKEN_KEY, token, "", PATH, DOMAIN);
 };
 
 export const destroyRefreshToken = () => {
-	VueCookies.remove(REFRESH_TOKEN_KEY);
+	VueCookies.remove(REFRESH_TOKEN_KEY, PATH, DOMAIN);
 };
 
 export default {
