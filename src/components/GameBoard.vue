@@ -57,13 +57,15 @@
 			</div>
 		</div>
 		<div
-			v-if="isGameStarted && !isGameEnded && isUserShowingPlayer"
+			v-if="
+				isGameStarted &&
+					!isGameEnded &&
+					isUserShowingPlayer &&
+					password.length > 0
+			"
 			class="row"
 		>
-			<h4>Your password is:</h4>
-			<div>
-				{{ password }}
-			</div>
+			<h4>Your password is: {{ password }}</h4>
 		</div>
 
 		<div
@@ -208,11 +210,14 @@ export default {
 			});
 		},
 		scoresReceived(scores) {
-			this.$store.dispatch(SET_SCOREBOARD, scores.scores);
+			this.$store
+				.dispatch(SET_SCOREBOARD, scores.scores)
+				.then(() => this.$store.dispatch(FETCH_GAME));
 		},
-		gameEnded() {
-			this.$notify.warning({
-				title: `The game is over`,
+		gameEnded(nickname) {
+			this.$store.dispatch(FETCH_GAME);
+			this.$notify.success({
+				title: `${nickname} won! The game is over`,
 				duration: 3000,
 			});
 		},
@@ -226,7 +231,6 @@ export default {
 			});
 		},
 		selectNextPlayer(nextPlayerId) {
-			console.log(nextPlayerId);
 			this.$gameHub.playerGuessed(this.gameId, nextPlayerId);
 		},
 		playerGuessed(nextPlayerId) {
@@ -239,13 +243,11 @@ export default {
 							duration: 3000,
 						}),
 					);
-				//this.$gameHub.switchPlayer(this.gameId)
-				//this.userIsShowingPlayer = true;
+				this.userIsShowingPlayer = true;
 			}
 		},
 		newShowingPlayer(playerId) {
 			this.$store.dispatch(FETCH_GAME).then(() => {
-				console.log("next player ID " + playerId);
 				const player = this.players.find((x) => x.id === playerId);
 				this.$notify.info({
 					title: `${player.nick} now showing`,
@@ -273,7 +275,7 @@ export default {
 		this.$store.dispatch(FETCH_USER).then(() => {
 			if (this.user.gameId !== null) {
 				this.$store.dispatch(FETCH_GAME);
-				// this.$gameHub.joinGame(this.user.gameId);
+				this.$gameHub.joinGame(this.user.gameId);
 			}
 		});
 	},

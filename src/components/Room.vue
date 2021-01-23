@@ -122,9 +122,6 @@ export default {
 			this.$store.dispatch(FETCH_ROOMS);
 		},
 		fetchGames() {
-			this.$gameHub.quitGame(this.user.gameId).then(() => {
-				this.fetchUser();
-			});
 			this.$store.dispatch(LEAVE_GAME);
 			this.$store.dispatch(FETCH_GAMES);
 		},

@@ -134,7 +134,9 @@ export default {
 				.dispatch(CREATE_GAME, this.gameName)
 				.then(() => this.fetchUser())
 				.then(() => this.fetchGames())
-				.then(this.$gameHub.joinGame(this.user.gameId));
+				.then(this.$gameHub.joinGame(this.user.gameId))
+				.then(() => this.fetchUser())
+				.then(() => this.fetchGame());
 		},
 		fetchUser() {
 			this.$store.dispatch(FETCH_USER);

@@ -41,7 +41,7 @@ import Room from "@/components/Room";
 import Game from "@/components/Game";
 
 import ScoreBoard from "@/components/ScoreBoard";
-import { LOGOUT, FETCH_USER } from "@/store/actions.type";
+import { LOGOUT, FETCH_USER, LEAVE_GAME } from "@/store/actions.type";
 import { mapGetters } from "vuex";
 
 export default {
@@ -76,6 +76,12 @@ export default {
 		this.$gameHub.startSignalR();
 	},
 	beforeDestroy() {
+		this.$gameHub
+			.removeFromGameGroup(this.user.gameId, this.user.id)
+			.then(() => {
+				this.fetchUser();
+				this.$store.dispatch(LEAVE_GAME);
+			});
 		this.$gameHub.stopSignalR();
 	},
 };
