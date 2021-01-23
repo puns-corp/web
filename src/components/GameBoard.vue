@@ -72,17 +72,20 @@
 			v-if="playersAreAlreadyDownloaded && isUserShowingPlayer"
 			class="row"
 		>
-			<div class="col-12">
-				Select the player who guessed
-			</div>
+			<h4>Select the player who guessed:</h4>
 			<div
 				v-for="player in playersWithoutUser"
 				:key="player.id"
-				class="col-12 my-2"
+				class="col-12 my-2 "
 			>
-				<button @click="selectNextPlayer(player.id)">
+				<el-button
+					class="w-100"
+					type="primary"
+					plain
+					@click="selectNextPlayer(player.id)"
+				>
 					{{ player.nick }}
-				</button>
+				</el-button>
 			</div>
 		</div>
 	</div>
@@ -97,6 +100,7 @@ import {
 	FETCH_USER,
 	SET_SCOREBOARD,
 	LEAVE_GAME,
+	FETCH_GAMES,
 } from "@/store/actions.type";
 
 export default {
@@ -215,7 +219,15 @@ export default {
 				.then(() => this.$store.dispatch(FETCH_GAME));
 		},
 		gameEnded(nickname) {
+			this.$gameHub.quitGame(this.user.gameId).then(() => {
+				this.$store.dispatch(FETCH_USER);
+				this.$store.dispatch(LEAVE_GAME);
+			});
 			this.$store.dispatch(FETCH_GAME);
+			this.$store.dispatch(FETCH_GAMES);
+
+			this.$store.dispatch(FETCH_USER);
+
 			this.$notify.success({
 				title: `${nickname} won! The game is over`,
 				duration: 3000,
