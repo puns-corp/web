@@ -2,7 +2,7 @@ import VueCookies from "vue-cookies";
 
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
-const DOMAIN = "https://puns-corp.github.io";
+const DOMAIN = "puns-corp.github.io";
 const PATH = "/web";
 
 export const getAccessToken = () => {
