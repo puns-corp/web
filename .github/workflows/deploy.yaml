@@ -1,4 +1,4 @@
-name: PUNS - Deploy
+name: PUNS-CORP - Deploy
 
 on:
     push:
