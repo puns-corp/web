@@ -27,7 +27,6 @@ export const saveRefreshToken = (token) => {
 	let date = new Date();
 	date.setFullYear(date.getFullYear() + 1);
 	VueCookies.set(REFRESH_TOKEN_KEY, token, date, PATH, DOMAIN);
-	VueCookies.set(REFRESH_TOKEN_KEY, token, "", PATH, DOMAIN);
 };
 
 export const destroyRefreshToken = () => {
